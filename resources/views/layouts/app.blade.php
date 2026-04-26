@@ -91,10 +91,18 @@
                 <a href="{{ route('reports.occupancy') }}" class="nav-link {{ request()->routeIs('reports.occupancy') ? 'active' : '' }}">Occupancy</a>
                 <a href="{{ route('reports.utilities') }}" class="nav-link {{ request()->routeIs('reports.utilities') ? 'active' : '' }}">Utilities</a>
             </div>
+            <div class="pt-3 mt-3 border-t border-[var(--line)]">
+                <a href="{{ route('settings.index') }}" class="nav-link {{ request()->routeIs('settings.*') ? 'active' : '' }}">Settings</a>
+            </div>
         </nav>
         <div class="px-4 py-3 border-t border-[var(--line)]">
-            <div class="text-sm font-medium">{{ auth()->user()->name }}</div>
-            <div class="text-xs text-[var(--muted)] mb-2">{{ auth()->user()->email }}</div>
+            <a href="{{ route('profile.show') }}" class="flex items-center gap-2 mb-2 group">
+                <div class="w-8 h-8 rounded-full bg-[var(--ink)] text-white flex items-center justify-center text-xs font-semibold shrink-0">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</div>
+                <div class="min-w-0">
+                    <div class="text-sm font-medium truncate group-hover:text-[var(--accent)] transition-colors">{{ auth()->user()->name }}</div>
+                    <div class="text-xs text-[var(--muted)] truncate">{{ auth()->user()->email }}</div>
+                </div>
+            </a>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button class="btn btn-ghost w-full justify-center text-xs">Sign out</button>
@@ -108,7 +116,10 @@
             <div class="accent-dot"></div>
             <span class="font-serif text-lg">BMS</span>
         </div>
-        <form method="POST" action="{{ route('logout') }}">@csrf<button class="text-xs text-[var(--muted)]">Sign out</button></form>
+        <div class="flex items-center gap-3">
+            <a href="{{ route('profile.show') }}" class="w-7 h-7 rounded-full bg-[var(--ink)] text-white flex items-center justify-center text-xs font-semibold">{{ strtoupper(substr(auth()->user()->name, 0, 1)) }}</a>
+            <form method="POST" action="{{ route('logout') }}">@csrf<button class="text-xs text-[var(--muted)]">Sign out</button></form>
+        </div>
     </header>
 
     <main class="flex-1 min-w-0 pt-14 md:pt-0">

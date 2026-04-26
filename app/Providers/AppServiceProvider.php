@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -14,6 +15,17 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        // Load dynamic settings from DB into config (if table exists)
+        if (Schema::hasTable('settings')) {
+            $appName  = \App\Models\Setting::get('app_name');
+            $currency = \App\Models\Setting::get('currency_symbol');
+            $dateFmt  = \App\Models\Setting::get('date_format');
+
+            if ($appName)  config(['app.name' => $appName]);
+            if ($currency) config(['app.currency_symbol' => $currency]);
+            if ($dateFmt)  config(['app.date_format' => $dateFmt]);
+        }
+
         // @money($amount) => "৳ 12,345.00"
         Blade::directive('money', function ($expression) {
             return "<?php echo config('app.currency_symbol', '৳') . ' ' . number_format((float)($expression), 2); ?>";
@@ -30,3 +42,4 @@ class AppServiceProvider extends ServiceProvider
         });
     }
 }
+

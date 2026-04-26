@@ -11,6 +11,8 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\TenantController;
 use App\Http\Controllers\UnitController;
 use App\Http\Controllers\UtilityController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SettingController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => redirect()->route('dashboard'));
@@ -64,4 +66,20 @@ Route::middleware('auth')->group(function () {
     Route::get('reports/dues', [ReportController::class, 'dues'])->name('reports.dues');
     Route::get('reports/occupancy', [ReportController::class, 'occupancy'])->name('reports.occupancy');
     Route::get('reports/utilities', [ReportController::class, 'utilities'])->name('reports.utilities');
+
+    // Profile
+    Route::get('profile', [ProfileController::class, 'show'])->name('profile.show');
+    Route::put('profile', [ProfileController::class, 'updateProfile'])->name('profile.update');
+    Route::put('profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password');
+
+    // Settings
+    Route::get('settings', [SettingController::class, 'index'])->name('settings.index');
+    Route::put('settings/general', [SettingController::class, 'updateGeneral'])->name('settings.general');
+    Route::put('settings/sms', [SettingController::class, 'updateSms'])->name('settings.sms');
+    Route::post('settings/sms/test', [SettingController::class, 'testSms'])->name('settings.sms.test');
+    Route::post('settings/sms/send-reminders', [SettingController::class, 'sendReminders'])->name('settings.sms.reminders');
+    Route::post('settings/backup/create', [SettingController::class, 'createBackup'])->name('settings.backup.create');
+    Route::get('settings/backup/download/{file}', [SettingController::class, 'downloadBackup'])->name('settings.backup.download');
+    Route::post('settings/backup/restore', [SettingController::class, 'restoreBackup'])->name('settings.backup.restore');
+    Route::delete('settings/backup/{file}', [SettingController::class, 'deleteBackup'])->name('settings.backup.delete');
 });
