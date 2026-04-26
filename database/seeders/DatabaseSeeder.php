@@ -34,10 +34,10 @@ class DatabaseSeeder extends Seeder
 
         // Utility types
         $utilities = [
-            ['name' => 'Electricity', 'unit_label' => 'kWh', 'rate_per_unit' => 9.5000, 'flat_fee' => 0, 'is_metered' => true, 'active' => true],
-            ['name' => 'Water',       'unit_label' => 'gal', 'rate_per_unit' => 0.3000, 'flat_fee' => 0, 'is_metered' => true, 'active' => true],
-            ['name' => 'Gas',         'unit_label' => '',    'rate_per_unit' => 0,      'flat_fee' => 990, 'is_metered' => false, 'active' => true],
-            ['name' => 'Service Charge', 'unit_label' => '', 'rate_per_unit' => 0,      'flat_fee' => 500, 'is_metered' => false, 'active' => true],
+            ['name' => 'Electricity', 'unit_label' => 'kWh', 'rate_per_unit' => '9.5000', 'flat_fee' => '0', 'is_metered' => true, 'active' => true],
+            ['name' => 'Water',       'unit_label' => 'gal', 'rate_per_unit' => '0.3000', 'flat_fee' => '0', 'is_metered' => true, 'active' => true],
+            ['name' => 'Gas',         'unit_label' => '',    'rate_per_unit' => '0',      'flat_fee' => '990', 'is_metered' => false, 'active' => true],
+            ['name' => 'Service Charge', 'unit_label' => '', 'rate_per_unit' => '0',      'flat_fee' => '500', 'is_metered' => false, 'active' => true],
         ];
         foreach ($utilities as $u) {
             UtilityType::updateOrCreate(['name' => $u['name']], $u);
@@ -143,7 +143,7 @@ class DatabaseSeeder extends Seeder
                         'previous_reading' => $prevElec,
                         'current_reading' => $currElec,
                         'consumption' => $elecConsumption,
-                        'amount' => round($elecConsumption * $elec->rate_per_unit, 2),
+                        'amount' => (string) round($elecConsumption * $elec->rate_per_unit, 2),
                     ]
                 );
                 $prevElec = $currElec;
@@ -157,7 +157,7 @@ class DatabaseSeeder extends Seeder
                         'previous_reading' => $prevWater,
                         'current_reading' => $currWater,
                         'consumption' => $waterConsumption,
-                        'amount' => round($waterConsumption * $water->rate_per_unit, 2),
+                        'amount' => (string) round($waterConsumption * $water->rate_per_unit, 2),
                     ]
                 );
                 $prevWater = $currWater;
@@ -179,8 +179,8 @@ class DatabaseSeeder extends Seeder
                     ->whereDate('period_month', $cursor->toDateString())
                     ->sum('amount');
 
-                $subtotal = (float) $lease->monthly_rent;
-                $total = $subtotal + $utilityTotal;
+                $subtotal = $lease->monthly_rent;
+                $total = (string) ($subtotal + $utilityTotal);
                 $invoiceNumber = 'INV-'.$cursor->format('Ym').'-'.str_pad((string)($lease->id * 100 + $cursor->month), 4, '0', STR_PAD_LEFT);
 
                 $invoice = Invoice::create([
@@ -189,11 +189,11 @@ class DatabaseSeeder extends Seeder
                     'period_month' => $cursor->toDateString(),
                     'issue_date' => $cursor->toDateString(),
                     'due_date' => $cursor->copy()->day(5)->toDateString(),
-                    'subtotal' => $subtotal,
-                    'utility_total' => $utilityTotal,
-                    'late_fee' => 0,
+                    'subtotal' => (string) $subtotal,
+                    'utility_total' => (string) $utilityTotal,
+                    'late_fee' => '0',
                     'total' => $total,
-                    'paid_amount' => 0,
+                    'paid_amount' => '0',
                     'status' => 'unpaid',
                 ]);
 
@@ -202,8 +202,8 @@ class DatabaseSeeder extends Seeder
                     'type' => 'rent',
                     'description' => 'Monthly rent — '.$cursor->format('F Y'),
                     'quantity' => 1,
-                    'unit_price' => $subtotal,
-                    'amount' => $subtotal,
+                    'unit_price' => (string) $subtotal,
+                    'amount' => (string) $subtotal,
                 ]);
                 foreach (UtilityReading::where('unit_id', $unit->id)->whereDate('period_month', $cursor->toDateString())->with('utilityType')->get() as $r) {
                     $desc = $r->utilityType->name;
@@ -246,7 +246,7 @@ class DatabaseSeeder extends Seeder
                         ]);
                         $invoice->update(['paid_amount' => $total, 'status' => 'paid']);
                     } elseif ($r <= 90) {
-                        $partial = round($total * 0.6, 2);
+                        $partial = (string) round($total * 0.6, 2);
                         Payment::create([
                             'invoice_id' => $invoice->id, 'amount' => $partial,
                             'paid_on' => $cursor->copy()->day(random_int(8, 20))->toDateString(),
@@ -267,7 +267,7 @@ class DatabaseSeeder extends Seeder
                         ]);
                         $invoice->update(['paid_amount' => $total, 'status' => 'paid']);
                     } elseif ($r <= 70) {
-                        $partial = round($total * 0.5, 2);
+                        $partial = (string) round($total * 0.5, 2);
                         Payment::create([
                             'invoice_id' => $invoice->id, 'amount' => $partial,
                             'paid_on' => Carbon::now()->subDays(random_int(0, 5))->toDateString(),
